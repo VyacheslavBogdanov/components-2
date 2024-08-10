@@ -1,76 +1,89 @@
+import styles from './App.module.css';
 import { useState } from "react";
-import styles from "./app.module.css";
-import data from "./data.json";
 
-export const App = () => {
-  
 
-  const [steps] = useState(data);
+const buttons = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '=', 'C'];
 
-  const [activeIndex, setActiveIndex] = useState(0);
+export default function App() {
 
-  
-  const further = () => {
-    setActiveIndex(activeIndex + 1);
-  };
+    const [operand1, setOperand1] = useState('0')
+    const [operand2, setOperand2] = useState('')
+    const [operator, setOperator] = useState('')
+    const [isFinish, setIsFinish] = useState(false)
+    const displayValue = [operand1, operator, operand2]
 
-  const back = () => {
-    setActiveIndex(activeIndex - 1);
-  };
+    const handleClick = (item) => {
+        if (operator) {
+            setOperand2((prevState) => prevState + item)
+        } else if (operand1 === '0') {
+            setOperand1(item)
+            
+        } else {
+            setOperand1((prevState) => prevState + item)
+            
+            
+        }
+    }
 
-  const first = () => {
-    setActiveIndex(0);
-  };
-  
+    const handleButtonOperand = (op) => {
+        switch (op) {
+            case '+':
+                setOperator('+')
+                break
+            case '-':
+                setOperator('-')
+                break
+        }
 
-  const firstStep = activeIndex === 0;
-  const lastStep = activeIndex === steps.length - 1;
+    };
+    const handleSet = () => {
+        switch (operator) {
+            case '+':
+                setOperand1(Number(operand1) + Number(operand2))
+                setOperand2('')
+                setOperator('')
+                setIsFinish(true)
+                break
+            case '-':
+                setOperand1(Number(operand1) - Number(operand2))
+                setOperand2('')
+                setOperator('')
+                setIsFinish(true)
+                break
+        }
+    };
 
-  return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h1>Инструкция по готовке пельменей</h1>
-        <div className={styles.steps}>
-          <div className={styles["steps-content"]}>
-  
-            {steps[activeIndex].content}
-          </div>
-          <ul className={styles["steps-list"]}>
-  
-            {steps.map((item, index) => (
-              <li
-                key={item.id}
-                className={`${styles["steps-item"]} ${
-                  index <= activeIndex ? styles.done : ""
-                } ${index === activeIndex ? styles.active : ""}`}
-              >
-                <button
-                  className={styles["steps-item-button"]}
-                  onClick={() => setActiveIndex(index)}
-                >
-                  {index + 1}
-                </button>
-                {item.title}
-              </li>
-            ))}
-          </ul>
-          <div className={styles["buttons-container"]}>
-            <button
-              className={styles.button}
-              onClick={back} 
-			  disabled={firstStep}
-            >
-              Назад
-            </button>
-            <button
-              className={styles.button}
-              onClick={lastStep ? first : further}
-            >
-              {lastStep ? "Начать сначала" : "Далее"}
-            </button>
-          </div>
+    const checkValue = (value) => {
+    if (value === '+' || value === '-') {
+        setIsFinish(false)
+        handleButtonOperand(value);
+    } else if (value === '=') {
+        handleSet();
+    } else if (value === 'C') {
+        setIsFinish(false)
+        setOperand1('0')
+        setOperand2('')
+        setOperator('')
+    } else {
+        setIsFinish(false)
+        handleClick(value);
+    }
+    }
+
+    return (
+        <div className='App'>
+            <div className={styles.Wrapper}>
+                <div className={`${styles.Display} ${isFinish ? styles.Finish : ''} `}>{displayValue}</div>
+                <div className={styles.Buttons}>
+                    {buttons.map((button, index) => (
+                        <button className={styles.Button} onClick={() => checkValue(button)}
+                                key={index}>{button}</button>
+                    ))}
+
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
-};
+    );
+}
+
+
